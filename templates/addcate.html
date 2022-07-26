@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>新增</title>
+    <link rel="stylesheet" href="/static/layui/css/layui.css"/>
+    <link rel="stylesheet" href="/static/layui/css/layout.css"/>
+</head>
+<body>
+<form class="layui-form">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">分类名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="name" lay-verify="required" autocomplete="off"
+
+                               class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">备注(对内)</label>
+                    <div class="layui-input-block">
+                        <textarea name="remark" class="layui-textarea"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="button-container">
+            <button type="reset" class="layui-btn layui-btn-primary layui-btn-sm">
+                重置
+            </button>
+            <button type="submit" class="layui-btn layui-btn-sm" lay-submit="" lay-filter="user-save">
+                提交
+            </button>
+        </div>
+    </div>
+</form>
+<script src="/static/layui/layui.js"></script>
+<script>
+
+
+    layui.use(['form', 'jquery'], function () {
+        let form = layui.form
+        let $ = layui.jquery
+
+
+        let MODULE_PATH = '/'
+
+
+        form.on('submit(user-save)', function (data) {
+
+
+            $.ajax({
+                url: MODULE_PATH + 'addcate',
+                data: JSON.stringify(data.field),
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'post',
+                success: function (result) {
+                    if (result.success) {
+                        layer.msg(result.msg, {icon: 1, time: 1000}, function () {
+                            parent.layer.close(parent.layer.getFrameIndex(window.name))//关闭当前页
+                            parent.layui.table.reload('cate-table')
+                        })
+                    } else {
+                        layer.msg(result.msg, {icon: 2, time: 3000})
+                    }
+                }
+            })
+            return false
+        })
+    })
+</script>
+<script>
+</script>
+</body>
+</html>

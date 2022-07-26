@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>导航管理</title>
+    <link rel="stylesheet" href="/static/layui/css/layui.css"/>
+</head>
+<body class="layui-container">
+<blockquote class="layui-elem-quote layui-text">链接管理</blockquote>
+
+{# 用户表格 #}
+<div class="user-main user-collasped">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <table id="user-table" lay-filter="user-table"></table>
+        </div>
+    </div>
+</div>
+<blockquote class="layui-elem-quote layui-text">分类管理</blockquote>
+<div class="user-main user-collasped">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <table id="cate-table" lay-filter="cate-table"></table>
+        </div>
+    </div>
+</div>
+</body>
+{# 表格操作 #}
+<script type="text/html" id="user-toolbar">
+    <button class="layui-btn layui-btn-danger layui-btn-md" lay-event="add">
+        <i class="layui-icon layui-icon-add"></i>
+        新增
+    </button>
+    {#    <button class="layui-btn layui-btn-danger layui-btn-md" lay-event="batchRemove">#}
+    {#        <i class="layui-icon layui-icon-ashbin"></i>#}
+    {#        删除#}
+    {#    </button>#}
+</script>
+{# 用户修改操作 #}
+<script type="text/html" id="user-bar">
+    {#    <button class="layui-btn layui-btn-container layui-btn-sm" lay-event="edit"><i#}
+    {#            class="layui-icon layui-icon-edit"></i>#}
+    {#        修改#}
+    {#    </button>#}
+    <button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="remove"><i
+            class="layui-icon layui-icon-ashbin"></i>
+        删除
+    </button>
+</script>
+
+<!-- {# 时间显示模板 #} -->
+<script type="text/html" id="time_show_tza">
+    {{ '  {{layui.util.toDateString(d.bill_time,  "yyyy-MM-dd HH:mm:ss")}' |safe }}}
+</script>
+
+<script src="/static/layui/layui.js"></script>
+
+<script>
+    layui.use(['table', 'form', 'jquery'], function () {
+        let table = layui.table
+        let form = layui.form
+        let $ = layui.jquery
+
+
+        let MODULE_PATH = '/'
+
+        // 表格数据
+
+
+        // 渲染表格数据
+        table.render({
+            elem: '#user-table',
+            url: MODULE_PATH + "admin",
+            page: true,
+            cols: [
+                [
+                    {type: 'checkbox'},
+                    {title: 'ID', field: 'id', align: 'center', hide: true}, //templet: '#user-enable',
+                    {title: '系统名称', field: 'name', align: 'center'}, //templet: '#user-enable',
+                    {title: '系统分类', field: 'cagetory_name', align: 'center',},
+                    {title: '系统链接', field: 'url', align: 'center'},
+                    {title: '系统图标', field: 'img', align: 'center'},
+                    {title: '系统描述', field: 'desc', align: 'center'},
+                    {title: '创建时间', field: 'create_at', align: 'center'},
+                    {title: '备注', field: 'remark', align: 'center'},
+                    {title: '操作', toolbar: '#user-bar', align: 'center'}
+                ]
+            ],
+            skin: 'line',
+            method: 'post',
+            {#height: 'full-148',#}
+            toolbar: '#user-toolbar', /*工具栏*/
+            text: {none: '暂无数据'},
+            defaultToolbar: [{layEvent: 'refresh', icon: 'layui-icon-refresh'}, 'filter', 'print', 'exports'] /*默认工具栏*/
+        })
+
+        // 渲染表格数据
+        table.render({
+            elem: '#cate-table',
+            url: MODULE_PATH + "cate_data",
+            page: true,
+            cols: [
+                [
+                    {type: 'checkbox'},
+                    {title: 'ID', field: 'id', align: 'center', hide: true}, //templet: '#user-enable',
+                    {title: '分类名称', field: 'name', align: 'center'}, //templet: '#user-enable',
+
+                    {title: '创建时间', field: 'create_at', align: 'center'},
+                    {title: '备注', field: 'remark', align: 'center'},
+                    {title: '操作', toolbar: '#user-bar', align: 'center'}
+                ]
+            ],
+            skin: 'line',
+            method: 'post',
+            {#height: 'full-148',#}
+            toolbar: '#user-toolbar', /*工具栏*/
+            text: {none: '暂无数据'},
+            defaultToolbar: [{layEvent: 'refresh', icon: 'layui-icon-refresh'}, 'filter', 'print', 'exports'] /*默认工具栏*/
+        })
+
+
+        table.on('tool(user-table)', function (obj) {
+            if (obj.event === 'remove') {
+                window.remove(obj, 'delete_bookmark/')
+            } else if (obj.event === 'edit') {
+                layer.msg('暂不支持，删除后重新新增即可')
+                {#window.edit(obj)#}
+            }
+        })
+        table.on('tool(cate-table)', function (obj) {
+            if (obj.event === 'remove') {
+                window.remove(obj, 'delete_cate/')
+            } else if (obj.event === 'edit') {
+                layer.msg('暂不支持，删除后重新新增即可')
+                {#window.edit(obj)#}
+            }
+        })
+
+        table.on('toolbar(user-table)', function (obj) {
+            if (obj.event === 'add') {
+                layer.open({
+                    type: 2,
+                    title: '新增',
+                    shade: 0.1,
+                    area: ['50%', '60%'],
+                    content: MODULE_PATH + 'add'
+                })
+            } else if (obj.event === 'refresh') {
+                table.reload('user-table')
+            } else if (obj.event === 'batchRemove') {
+                window.batchRemove(obj)
+            } else if (obj.event === 'collasped') {
+                {#$('.user-left').toggleClass('user-collasped')#}
+                {#$('.user-main').toggleClass('user-collasped')#}
+                table.resize()
+            }
+        })
+        table.on('toolbar(cate-table)', function (obj) {
+            if (obj.event === 'add') {
+                layer.open({
+                    type: 2,
+                    title: '新增',
+                    shade: 0.1,
+                    area: ['40%', '40%'],
+                    content: MODULE_PATH + 'addcate'
+                })
+            } else if (obj.event === 'refresh') {
+                table.reload('cate-table')
+            } else if (obj.event === 'batchRemove') {
+                window.batchRemove(obj)
+            } else if (obj.event === 'collasped') {
+                {#$('.user-left').toggleClass('user-collasped')#}
+                {#$('.user-main').toggleClass('user-collasped')#}
+                table.resize()
+            }
+        })
+
+        form.on('submit(user-query)', function (data) {
+            window.refresh(data.field)
+            return false
+        })
+
+
+        window.remove = function (obj, url) {
+            layer.confirm('确定要删除该数据吗？', {icon: 3, title: '提示'}, function (index) {
+                layer.close(index)
+                let loading = layer.load()
+                $.ajax({
+                    url: MODULE_PATH + url + obj.data['id'],
+                    dataType: 'json',
+                    type: 'post',
+                    success: function (result) {
+                        layer.close(loading)
+                        if (result.success) {
+                            layer.msg(result.msg, {icon: 1, time: 1000}, function () {
+                                obj.del()
+                            })
+                        } else {
+
+                            layer.msg(result.msg, {icon: 2, time: 3000})
+                        }
+                    }
+                })
+            })
+        }
+
+
+    })
+</script>
+</html>
